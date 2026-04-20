@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: signal-lab-postgres
+    env_file:
+      - .env.example
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-signal_lab}
+      POSTGRES_USER: ${POSTGRES_USER:-signal_lab}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-signal_lab}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-signal_lab} -d ${POSTGRES_DB:-signal_lab}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: signal-lab-backend
+    env_file:
+      - .env.example
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://signal_lab:signal_lab@postgres:5432/signal_lab?schema=public}
+      PORT: ${BACKEND_PORT:-3001}
+      FRONTEND_ORIGIN: http://localhost:${FRONTEND_PORT:-3000}
+    working_dir: /workspace/apps/backend
+    command: sh -c "npx prisma generate --schema=/workspace/prisma/schema.prisma && npx prisma migrate deploy --schema=/workspace/prisma/schema.prisma && npm run start:dev"
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./:/workspace
+      - backend_node_modules:/workspace/apps/backend/node_modules
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    container_name: signal-lab-frontend
+    env_file:
+      - .env.example
+    environment:
+      PORT: ${FRONTEND_PORT:-3000}
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:3001}
+    working_dir: /workspace/apps/frontend
+    command: sh -c "npm run dev"
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./:/workspace
+      - frontend_node_modules:/workspace/apps/frontend/node_modules
+
+volumes:
+  postgres_data:
+  backend_node_modules:
+  frontend_node_modules:
