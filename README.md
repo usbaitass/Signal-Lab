@@ -27,6 +27,32 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
+## 15-Minute Verification Path
+
+Use this exact flow for reviewer validation.
+
+```bash
+# 1) Foundation checks
+docker compose ps
+curl -sS http://localhost:3001/api/health
+curl -I http://localhost:3001/api/docs
+
+# 2) Trigger required scenarios
+curl -sS -X POST http://localhost:3001/api/scenarios/run -H "Content-Type: application/json" -d '{"type":"success"}'
+curl -sS -X POST http://localhost:3001/api/scenarios/run -H "Content-Type: application/json" -d '{"type":"validation_error"}'
+curl -sS -X POST http://localhost:3001/api/scenarios/run -H "Content-Type: application/json" -d '{"type":"system_error"}'
+curl -sS -X POST http://localhost:3001/api/scenarios/run -H "Content-Type: application/json" -d '{"type":"slow_request"}'
+
+# 3) Verify observability signals
+curl -sS http://localhost:3001/metrics | rg "scenario_runs_total|scenario_run_duration_seconds|http_requests_total"
+```
+
+Then confirm:
+- UI runs on `http://localhost:3000`.
+- Grafana runs on `http://localhost:3100` (`admin/admin`) and dashboard `Signal Lab Observability` is populated.
+- Loki logs are queryable in Grafana Explore with `{app="signal-lab"} | json | scenarioType!=""`.
+- Sentry has a captured event after running `system_error` (requires real `SENTRY_DSN`).
+
 ## Verify
 
 Run the required checks:
@@ -73,6 +99,17 @@ Common command intents:
 - `/add-endpoint`
 - `/check-obs`
 - `/health-check`
+
+Fresh chat continuation proof path:
+- Start a new Cursor chat and ask it to continue Signal Lab work.
+- Repo-specific guidance artifacts are discoverable at:
+  - `.cursor/rules/`
+  - `.cursor/skills/`
+  - `.cursor/commands/`
+  - `.cursor/hooks.json`
+  - `.execution/templates/context.template.json`
+- Orchestrator entrypoint: `.cursor/skills/signal-lab-orchestrator/SKILL.md`
+- AI layer rationale: `docs/cursor-ai-layer.md`
 
 ## Prisma migration path
 
