@@ -1,0 +1,31 @@
+---
+description: Keep metrics, structured logs, and Sentry behavior consistent
+globs: apps/backend/src/**/*.ts
+alwaysApply: false
+---
+
+# Observability Conventions
+
+Apply this when changing backend endpoints, services, or middleware.
+
+## Metrics
+- Keep names in `snake_case` and Prometheus style (for example `*_total`, `*_seconds`).
+- Reuse `MetricsService` for counters/histograms.
+- Labels must be low-cardinality and stable (`type`, `status`, `path`, `status_code`).
+
+## Structured Logs
+- Emit JSON logs via shared logger utilities.
+- Include scenario/request context when available:
+  - `context`
+  - `scenarioType`
+  - `scenarioId`
+  - `duration`
+  - `error`
+- Use `info` for normal flow, `warn` for degraded flow, `error` for failures.
+
+## Sentry
+- Capture unexpected system failures, not expected validation outcomes.
+- Do not swallow exceptions after capture; preserve HTTP behavior.
+
+## PR Check
+- For each new endpoint, confirm at least one metric and one structured log path exist.

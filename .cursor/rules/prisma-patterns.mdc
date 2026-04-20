@@ -1,0 +1,27 @@
+---
+description: Prisma usage and schema change guardrails
+globs: "{prisma/**/*.prisma,apps/backend/src/**/*.ts}"
+alwaysApply: false
+---
+
+# Prisma Patterns
+
+## Allowed Data Access Pattern
+- Use `PrismaService` in NestJS providers/controllers.
+- Keep database access typed through Prisma Client.
+- Use migrations for schema changes; do not rely on schema drift.
+
+## Forbidden Patterns
+- No raw SQL unless the user explicitly asks for it and risk is documented.
+- No additional ORM layer.
+- No direct DB driver calls that bypass Prisma for normal CRUD/query flow.
+
+## Schema Change Checklist
+- Update `prisma/schema.prisma`.
+- Create/apply migration.
+- Verify impacted API DTO/response behavior.
+- Confirm frontend contracts still match backend payloads.
+
+## Query Design
+- Prefer explicit `select`/`include` to control payload size.
+- Keep list endpoints bounded with `take`/pagination guards.

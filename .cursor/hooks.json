@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/schema-change-guard.sh",
+        "timeout": 8
+      },
+      {
+        "command": ".cursor/hooks/api-change-reminder.sh",
+        "timeout": 8
+      }
+    ]
+  }
+}

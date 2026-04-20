@@ -1,0 +1,26 @@
+---
+description: Frontend implementation patterns for data, forms, and UI
+globs: apps/frontend/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend Patterns
+
+## Data and Server State
+- Use TanStack Query for API reads/mutations.
+- Invalidate affected query keys after successful mutations.
+- Avoid parallel fetch state managers for server data.
+
+## Forms
+- Use React Hook Form for non-trivial form state.
+- Keep form payload types explicit and aligned with backend DTOs.
+- Surface API error messages in UI-friendly feedback.
+
+## UI and Styling
+- Prefer existing shadcn-style primitives in `components/ui`.
+- Use Tailwind utility classes with consistent spacing and typography.
+- Keep pages composable; extract repeatable UI logic into small components.
+
+## Reliability
+- Guard network calls with clear error handling.
+- Keep route-level UX responsive for loading, success, and failure states.

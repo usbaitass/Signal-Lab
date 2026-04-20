@@ -1,0 +1,29 @@
+---
+description: Enforce required Signal Lab stack and library boundaries
+alwaysApply: true
+---
+
+# Stack Constraints
+
+Use only the approved stack unless the user explicitly asks to change it.
+
+## Backend
+- NestJS for API structure.
+- Prisma for database access.
+- PostgreSQL as the only relational database.
+- Do not add another ORM or query builder.
+
+## Frontend
+- Next.js App Router.
+- TanStack Query for server state.
+- React Hook Form for forms.
+- Tailwind CSS + shadcn/ui patterns for UI.
+- Do not add Redux, MobX, SWR, or other parallel state/data libraries.
+
+## Observability and Infra
+- Prometheus metrics, Loki structured logs, Sentry error tracking.
+- Docker Compose remains the primary local runtime path.
+
+## Delivery Rule
+- Prefer incremental edits over introducing new frameworks.
+- If a requested task appears to require a stack deviation, ask first with trade-offs.

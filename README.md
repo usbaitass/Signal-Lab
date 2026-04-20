@@ -61,6 +61,19 @@ Expected:
 
 Quick guide: `phase-2-observability-walkthrough.md`
 
+## Phase 3 Cursor AI layer
+
+- AI layer reference: `docs/cursor-ai-layer.md`
+- Rules: `.cursor/rules/`
+- Custom skills: `.cursor/skills/`
+- Commands: `.cursor/commands/`
+- Hooks config: `.cursor/hooks.json`
+
+Common command intents:
+- `/add-endpoint`
+- `/check-obs`
+- `/health-check`
+
 ## Prisma migration path
 
 The backend service runs Prisma migrations automatically on startup:

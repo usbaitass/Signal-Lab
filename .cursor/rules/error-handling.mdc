@@ -1,0 +1,23 @@
+---
+description: Error handling contract across backend and frontend
+globs: "apps/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Error Handling
+
+## Backend
+- Use typed NestJS HTTP exceptions for expected failures.
+- Keep validation failures as `4xx`; reserve `5xx` for system faults.
+- Log error paths with structured fields and context.
+- Capture unexpected failures to Sentry when configured.
+
+## Frontend
+- Never ignore failed requests.
+- Convert API error payloads to clear user-facing messages.
+- Keep mutation/query error states explicit in UI.
+
+## Shared Rules
+- Do not return raw internal stack traces to clients.
+- Preserve enough context for debugging (`scenarioId`, route/action, error category).
+- When adding a new failure path, update tests or manual verification notes.
