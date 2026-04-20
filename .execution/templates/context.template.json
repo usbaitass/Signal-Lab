@@ -1,0 +1,50 @@
+{
+  "executionId": "YYYY-MM-DD-HH-mm-ss",
+  "createdAt": "YYYY-MM-DDTHH:mm:ssZ",
+  "updatedAt": "YYYY-MM-DDTHH:mm:ssZ",
+  "prdInput": "prds/<prd-file>.md",
+  "mode": "fast",
+  "status": "in_progress",
+  "currentPhase": "analysis",
+  "phases": {
+    "analysis": { "status": "pending", "result": null },
+    "codebase": { "status": "pending", "result": null },
+    "planning": { "status": "pending", "result": null },
+    "decomposition": { "status": "pending", "result": null, "totalTasks": 0 },
+    "implementation": {
+      "status": "pending",
+      "completedTasks": 0,
+      "failedTasks": 0,
+      "totalTasks": 0
+    },
+    "review": {
+      "status": "pending",
+      "retriesByDomain": {},
+      "openIssues": []
+    },
+    "report": {
+      "status": "pending",
+      "path": null
+    }
+  },
+  "tasks": [
+    {
+      "id": "task-001",
+      "title": "Example atomic task",
+      "domain": "backend",
+      "description": "1-3 sentence scoped task.",
+      "complexity": "low",
+      "recommendedModel": "fast",
+      "dependsOn": [],
+      "status": "pending",
+      "attempts": 0,
+      "notes": null
+    }
+  ],
+  "modelUsage": {
+    "fast": 0,
+    "default": 0
+  },
+  "assumptions": [],
+  "errors": []
+}

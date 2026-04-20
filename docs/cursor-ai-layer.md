@@ -18,6 +18,8 @@ This repository includes a scoped AI layer so a new Cursor chat can continue wor
   - **When to use**: scaffolding new API routes with DTO validation, Prisma access, and Swagger metadata.
 - `.cursor/skills/shadcn-rhf-form/SKILL.md`
   - **When to use**: creating or fixing frontend forms with RHF and shadcn-style primitives.
+- `.cursor/skills/signal-lab-orchestrator/SKILL.md`
+  - **When to use**: running PRD-scale work through the required 7-phase orchestrator flow with atomic task delegation and resume support.
 
 ## Commands
 
@@ -59,3 +61,12 @@ These are the selected marketplace skills for this stack and workflow.
 ## Why Custom Skills Still Matter
 
 Marketplace skills give broad framework guidance; custom skills encode repo-specific conventions (metrics names, log field contract, scenario workflow expectations, and practical command/check sequences).
+
+## Orchestrator Runtime State (Phase 4)
+
+- Runtime execution state is stored under `.execution/<timestamp>/context.json`.
+- Reusable templates live in:
+  - `.execution/templates/context.template.json`
+  - `.execution/templates/report.template.md`
+- `.cursor/skills/signal-lab-orchestrator/COORDINATION.md` contains compact delegation prompt templates.
+- `.cursor/skills/signal-lab-orchestrator/EXAMPLE.md` shows resume flow behavior.
