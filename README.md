@@ -4,6 +4,7 @@ Phase 1 foundation stack for Signal Lab:
 - Frontend: Next.js App Router on `http://localhost:3000`
 - Backend: NestJS API on `http://localhost:3001`
 - Database: PostgreSQL 16 on `localhost:5432`
+- Observability: Prometheus (`:9090`), Grafana (`:3100`), Loki (`:3101`), Promtail
 
 ## Prerequisites
 
@@ -39,6 +40,9 @@ curl -sS http://localhost:3001/api/health
 
 # Swagger UI
 curl -I http://localhost:3001/api/docs
+
+# Prometheus metrics endpoint
+curl -sS http://localhost:3001/metrics | rg "scenario_runs_total|scenario_run_duration_seconds|http_requests_total"
 ```
 
 Expected:
@@ -46,6 +50,16 @@ Expected:
 - `backend` is up on `0.0.0.0:3001->3001/tcp`
 - `postgres` is up on `0.0.0.0:5432->5432/tcp`
 - Health returns JSON with `status: "ok"` and timestamp.
+- `/metrics` exposes required Prometheus counters/histogram.
+
+## Phase 2 observability demo
+
+- Scenario runner UI: `http://localhost:3000`
+- Grafana: `http://localhost:3100` (default `admin/admin`)
+- Prometheus: `http://localhost:9090`
+- Loki API: `http://localhost:3101`
+
+Quick guide: `phase-2-observability-walkthrough.md`
 
 ## Prisma migration path
 

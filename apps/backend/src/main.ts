@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import * as Sentry from "@sentry/node";
 import { AppModule } from "./app.module";
 import { AllExceptionsFilter } from "./filters/all-exceptions.filter";
 
@@ -9,11 +10,22 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = Number(process.env.PORT ?? 3001);
   const frontendOrigin = process.env.FRONTEND_ORIGIN ?? "http://localhost:3000";
+  const sentryDsn = process.env.SENTRY_DSN;
+
+  if (sentryDsn) {
+    Sentry.init({
+      dsn: sentryDsn,
+      tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? 1),
+      environment: process.env.NODE_ENV ?? "development",
+    });
+  }
 
   app.enableCors({
     origin: frontendOrigin,
   });
-  app.setGlobalPrefix("api");
+  app.setGlobalPrefix("api", {
+    exclude: ["metrics"],
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

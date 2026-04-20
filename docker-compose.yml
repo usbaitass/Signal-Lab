@@ -29,8 +29,10 @@ services:
       DATABASE_URL: ${DATABASE_URL:-postgresql://signal_lab:signal_lab@postgres:5432/signal_lab?schema=public}
       PORT: ${BACKEND_PORT:-3001}
       FRONTEND_ORIGIN: http://localhost:${FRONTEND_PORT:-3000}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-1}
     working_dir: /workspace/apps/backend
-    command: sh -c "npx prisma generate --schema=/workspace/prisma/schema.prisma && npx prisma migrate deploy --schema=/workspace/prisma/schema.prisma && npm run start:dev"
+    command: sh -c "npx prisma generate --schema=/workspace/prisma/schema.prisma && mkdir -p /workspace/apps/backend/node_modules/.prisma && cp -R /workspace/node_modules/.prisma/client /workspace/apps/backend/node_modules/.prisma/ && cp -R /workspace/node_modules/@prisma/client/* /workspace/apps/backend/node_modules/@prisma/client/ && npx prisma migrate deploy --schema=/workspace/prisma/schema.prisma && npm run start:dev"
     ports:
       - "${BACKEND_PORT:-3001}:3001"
     depends_on:
@@ -60,7 +62,57 @@ services:
       - ./:/workspace
       - frontend_node_modules:/workspace/apps/frontend/node_modules
 
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: signal-lab-prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    depends_on:
+      - backend
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  loki:
+    image: grafana/loki:3.2.1
+    container_name: signal-lab-loki
+    command: -config.file=/etc/loki/loki-config.yml
+    ports:
+      - "${LOKI_PORT:-3101}:3100"
+    volumes:
+      - ./observability/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+
+  promtail:
+    image: grafana/promtail:3.2.1
+    container_name: signal-lab-promtail
+    command: -config.file=/etc/promtail/promtail-config.yml
+    depends_on:
+      - loki
+    volumes:
+      - ./observability/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    container_name: signal-lab-grafana
+    depends_on:
+      - prometheus
+      - loki
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "${GRAFANA_PORT:-3100}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./observability/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+
 volumes:
   postgres_data:
   backend_node_modules:
   frontend_node_modules:
+  grafana_data:

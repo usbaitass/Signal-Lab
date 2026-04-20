@@ -5,7 +5,9 @@ import {
   HttpException,
   HttpStatus,
 } from "@nestjs/common";
+import * as Sentry from "@sentry/node";
 import { Request, Response } from "express";
+import { logEvent } from "../observability/structured-log";
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -21,10 +23,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const errorPayload = isHttpException
       ? exception.getResponse()
       : "Internal server error";
+    const path = request.url;
+    const isSystemError = status >= 500;
+
+    if (isSystemError) {
+      Sentry.captureException(exception);
+    }
+    logEvent(isSystemError ? "error" : "warn", "HTTP exception captured", {
+      context: "AllExceptionsFilter",
+      duration: undefined,
+      error: exception,
+    });
 
     response.status(status).json({
       statusCode: status,
-      path: request.url,
+      path,
       method: request.method,
       timestamp: new Date().toISOString(),
       error: errorPayload,
