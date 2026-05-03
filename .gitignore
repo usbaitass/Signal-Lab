@@ -4,3 +4,4 @@ apps/*/node_modules
 apps/*/.next
 apps/*/dist
 postgres_data
+.DS_Store
